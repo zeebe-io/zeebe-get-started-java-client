@@ -5,15 +5,12 @@ import java.util.*;
 
 import io.zeebe.client.ClientProperties;
 import io.zeebe.client.ZeebeClient;
-import io.zeebe.client.event.TopicSubscription;
+import io.zeebe.client.event.*;
 import io.zeebe.client.task.TaskSubscription;
-import io.zeebe.client.workflow.cmd.DeploymentResult;
-import io.zeebe.client.workflow.cmd.WorkflowInstance;
 
 public class Application
 {
     private static final String TOPIC = "default-topic";
-    private static final int PARTITION_ID = 0;
 
     public static void main(String[] args)
     {
@@ -26,24 +23,15 @@ public class Application
         client.connect();
         System.out.println("Connected.");
 
-        final DeploymentResult result = client.workflowTopic(TOPIC, PARTITION_ID).deploy()
+        final DeploymentEvent deployment = client.workflows().deploy(TOPIC)
             .resourceFromClasspath("order-process.bpmn")
             .execute();
 
-        if (result.isDeployed())
-        {
-            final int version = result.getDeployedWorkflows().get(0).getVersion();
-
+        final int version = deployment.getDeployedWorkflows().get(0).getVersion();
             System.out.println("Workflow deployed. Version: " + version);
-        }
-        else
-        {
-            final String errorMessage = result.getErrorMessage();
 
-            System.out.println("Failed to deploy workflow: " + errorMessage);
-        }
 
-        final WorkflowInstance wfInstance = client.workflowTopic(TOPIC, PARTITION_ID).create()
+        final WorkflowInstanceEvent wfInstance = client.workflows().create(TOPIC)
             .bpmnProcessId("order-process")
             .latestVersion()
             .payload("{ \"orderId\": 31243, \"orderStatus\": \"NEW\", \"orderItems\": [435, 182, 376] }")
@@ -53,22 +41,22 @@ public class Application
 
         System.out.println("Workflow instance created. Key: " + workflowInstanceKey);
 
-        final TopicSubscription topicSubscription = client.topic(TOPIC, PARTITION_ID).newSubscription()
+        final TopicSubscription topicSubscription = client.topics().newSubscription(TOPIC)
             .name("app-monitoring")
             .startAtHeadOfTopic()
-            .workflowInstanceEventHandler((metadata, event ) ->
+            .workflowInstanceEventHandler(event ->
             {
                 System.out.println("> " + event);
             })
             .open();
 
-        final TaskSubscription taskSubscription = client.taskTopic(TOPIC, PARTITION_ID).newTaskSubscription()
+        final TaskSubscription taskSubscription = client.tasks().newTaskSubscription(TOPIC)
             .taskType("reserveOrderItems")
             .lockOwner("stocker")
             .lockTime(Duration.ofMinutes(5))
-            .handler(task ->
+            .handler((controller, task) ->
             {
-                final Map<String, Object> headers = task.getHeaders();
+                final Map<String, Object> headers = task.getCustomHeaders();
                 final String reservationTime = (String) headers.get("reservationTime");
 
                 final String orderItems = task.getPayload();
@@ -77,7 +65,7 @@ public class Application
 
                 // ...
 
-                task.complete("{ \"orderStatus\": \"RESERVED\" }");
+                controller.completeTask("{ \"orderStatus\": \"RESERVED\" }");
             })
             .open();
 
