@@ -28,8 +28,7 @@ public class Application
             .execute();
 
         final int version = deployment.getDeployedWorkflows().get(0).getVersion();
-            System.out.println("Workflow deployed. Version: " + version);
-
+        System.out.println("Workflow deployed. Version: " + version);
 
         final WorkflowInstanceEvent wfInstance = client.workflows().create(TOPIC)
             .bpmnProcessId("order-process")

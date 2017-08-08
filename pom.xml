@@ -5,11 +5,11 @@
 	<name>Zeebe Get Started</name>
 	<groupId>io.zeebe</groupId>
 	<artifactId>zeebe-get-started-java-client</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.1.0</version>
 	<packaging>jar</packaging>
 
 	<properties>
-		<version.zeebe>0.1.0-SNAPSHOT</version.zeebe>
+		<version.zeebe>0.1.0</version.zeebe>
 		<version.log4j>2.8.1</version.log4j>
 	</properties>
 
@@ -52,6 +52,11 @@
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
+					<archive>
+			            <manifest>
+			              <mainClass>io.zeebe.Application</mainClass>
+			            </manifest>
+			          </archive>
 				</configuration>
 				<executions>
 					<execution>

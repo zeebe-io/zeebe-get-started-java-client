@@ -4,4 +4,12 @@ This repository contains the source code of the Zeebe Get-Started Java client tu
 
 You can find the tutorial in the [Zeebe documentation](http://docs.zeebe.io/java-client/get-started).
 
-**Note that the guide and the source code is still under construction.** 
+## Run with Maven
+
+Build the JAR file with Maven
+
+`mvn clean package`
+
+And execute it with Java
+
+`java -jar target/zeebe-get-started-java-client-0.1.0-jar-with-dependencies.jar` 
