@@ -64,7 +64,10 @@ public class Application
 
                 // ...
 
-                controller.completeTask("{ \"orderStatus\": \"RESERVED\" }");
+                controller
+                        .complete(task)
+                        .payload("{ \"orderStatus\": \"RESERVED\" }")
+                        .execute();
             })
             .open();
 
