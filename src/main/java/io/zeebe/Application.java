@@ -53,7 +53,7 @@ public class Application
             .taskType("reserveOrderItems")
             .lockOwner("stocker")
             .lockTime(Duration.ofMinutes(5))
-            .handler((controller, task) ->
+            .handler((tasksClient, task) ->
             {
                 final Map<String, Object> headers = task.getCustomHeaders();
                 final String reservationTime = (String) headers.get("reservationTime");
@@ -64,7 +64,7 @@ public class Application
 
                 // ...
 
-                controller
+                tasksClient
                         .complete(task)
                         .payload("{ \"orderStatus\": \"RESERVED\" }")
                         .execute();
