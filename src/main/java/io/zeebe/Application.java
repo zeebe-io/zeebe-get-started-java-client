@@ -20,7 +20,6 @@ public class Application
 
         final ZeebeClient client = ZeebeClient.create(clientProperties);
 
-        client.connect();
         System.out.println("Connected.");
 
         final DeploymentEvent deployment = client.workflows().deploy(TOPIC)
