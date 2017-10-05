@@ -32,12 +32,35 @@ public class Application
         final WorkflowInstanceEvent wfInstance = client.workflows().create(TOPIC)
             .bpmnProcessId("order-process")
             .latestVersion()
-            .payload("{ \"orderId\": 31243, \"orderStatus\": \"NEW\", \"orderItems\": [435, 182, 376] }")
+            .payload("{ \"orderId\": 31243, \"orderItems\": [435, 182, 376] }")
             .execute();
 
         final long workflowInstanceKey = wfInstance.getWorkflowInstanceKey();
 
         System.out.println("Workflow instance created. Key: " + workflowInstanceKey);
+
+        final TaskSubscription taskSubscription = client.tasks().newTaskSubscription(TOPIC)
+            .taskType("payment-service")
+            .lockOwner("sample-app")
+            .lockTime(Duration.ofMinutes(5))
+            .handler((tasksClient, task) ->
+            {
+                final Map<String, Object> headers = task.getCustomHeaders();
+                final String method = (String) headers.get("method");
+
+                final String orderId = task.getPayload();
+
+                System.out.println("Process order: " + orderId);
+                System.out.println("Collect money using payment method: " + method);
+
+                // ...
+
+                tasksClient
+                        .complete(task)
+                        .payload("{ \"totalPrice\": 46.50 }")
+                        .execute();
+            })
+            .open();
 
         final TopicSubscription topicSubscription = client.topics().newSubscription(TOPIC)
             .name("app-monitoring")
@@ -45,28 +68,6 @@ public class Application
             .workflowInstanceEventHandler(event ->
             {
                 System.out.println("> " + event);
-            })
-            .open();
-
-        final TaskSubscription taskSubscription = client.tasks().newTaskSubscription(TOPIC)
-            .taskType("reserveOrderItems")
-            .lockOwner("stocker")
-            .lockTime(Duration.ofMinutes(5))
-            .handler((tasksClient, task) ->
-            {
-                final Map<String, Object> headers = task.getCustomHeaders();
-                final String reservationTime = (String) headers.get("reservationTime");
-
-                final String orderItems = task.getPayload();
-
-                System.out.println("Reserved " + orderItems + " for " + reservationTime);
-
-                // ...
-
-                tasksClient
-                        .complete(task)
-                        .payload("{ \"orderStatus\": \"RESERVED\" }")
-                        .execute();
             })
             .open();
 
