@@ -14,13 +14,16 @@ public class Application
 
     public static void main(String[] args)
     {
+        final String contactPoint = args.length >= 1 ? args[0] : "127.0.0.1:51015";
         final Properties clientProperties = new Properties();
         // change the contact point if needed
-        clientProperties.put(ClientProperties.BROKER_CONTACTPOINT, "127.0.0.1:51015");
+        clientProperties.put(ClientProperties.BROKER_CONTACTPOINT, contactPoint);
+
+        System.out.println("Connecting to broker: " + contactPoint);
 
         final ZeebeClient client = ZeebeClient.create(clientProperties);
 
-        System.out.println("Connected.");
+        System.out.println("Connected to broker: " + contactPoint);
 
         final DeploymentEvent deployment = client.workflows().deploy(TOPIC)
             .resourceFromClasspath("order-process.bpmn")
