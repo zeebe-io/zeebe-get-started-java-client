@@ -1,2 +1,0 @@
-Connecting to broker: 123123.12312.3123.123:123
-Connected to broker: 123123.12312.3123.123:123
