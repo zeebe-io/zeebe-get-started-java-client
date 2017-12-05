@@ -26,7 +26,7 @@ public class Application
         System.out.println("Connected to broker: " + contactPoint);
 
         final DeploymentEvent deployment = client.workflows().deploy(TOPIC)
-            .resourceFromClasspath("order-process.bpmn")
+            .addResourceFromClasspath("order-process.bpmn")
             .execute();
 
         final int version = deployment.getDeployedWorkflows().get(0).getVersion();
