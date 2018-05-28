@@ -5,12 +5,14 @@ import java.util.*;
 
 import io.zeebe.client.ClientProperties;
 import io.zeebe.client.ZeebeClient;
-import io.zeebe.client.event.*;
-import io.zeebe.client.task.TaskSubscription;
+import io.zeebe.client.api.clients.WorkflowClient;
+import io.zeebe.client.api.events.DeploymentEvent;
+import io.zeebe.client.api.events.WorkflowInstanceEvent;
+import io.zeebe.client.api.subscription.JobWorker;
+import io.zeebe.client.api.subscription.TopicSubscription;
 
 public class Application
 {
-    private static final String TOPIC = "default-topic";
 
     public static void main(String[] args)
     {
@@ -21,62 +23,67 @@ public class Application
 
         System.out.println("Connecting to broker: " + contactPoint);
 
-        final ZeebeClient client = ZeebeClient.create(clientProperties);
+        final ZeebeClient client = ZeebeClient.newClientBuilder()
+            .withProperties(clientProperties)
+            .build();
 
         System.out.println("Connected to broker: " + contactPoint);
 
-        final DeploymentEvent deployment = client.workflows().deploy(TOPIC)
+        final WorkflowClient workflowClient = client.topicClient().workflowClient();
+
+        final DeploymentEvent deployment = workflowClient.newDeployCommand()
             .addResourceFromClasspath("order-process.bpmn")
-            .execute();
+            .send()
+            .join();
 
         final int version = deployment.getDeployedWorkflows().get(0).getVersion();
         System.out.println("Workflow deployed. Version: " + version);
 
-        final WorkflowInstanceEvent wfInstance = client.workflows().create(TOPIC)
+        final WorkflowInstanceEvent wfInstance = workflowClient.newCreateInstanceCommand()
             .bpmnProcessId("order-process")
             .latestVersion()
             .payload("{ \"orderId\": 31243, \"orderItems\": [435, 182, 376] }")
-            .execute();
+            .send()
+            .join();
 
         final long workflowInstanceKey = wfInstance.getWorkflowInstanceKey();
 
         System.out.println("Workflow instance created. Key: " + workflowInstanceKey);
 
-        final TaskSubscription taskSubscription = client.tasks().newTaskSubscription(TOPIC)
-            .taskType("payment-service")
-            .lockOwner("sample-app")
-            .lockTime(Duration.ofMinutes(5))
-            .handler((tasksClient, task) ->
+        final JobWorker jobWorker = client.topicClient().jobClient()
+            .newWorker()
+            .jobType("payment-service")
+            .handler((jobClient, job) ->
             {
-                final Map<String, Object> headers = task.getCustomHeaders();
+                final Map<String, Object> headers = job.getCustomHeaders();
                 final String method = (String) headers.get("method");
 
-                final String orderId = task.getPayload();
+                final String orderId = job.getPayload();
 
                 System.out.println("Process order: " + orderId);
                 System.out.println("Collect money using payment method: " + method);
 
                 // ...
 
-                tasksClient
-                        .complete(task)
-                        .payload("{ \"totalPrice\": 46.50 }")
-                        .execute();
+                jobClient.newCompleteCommand(job)
+                    .payload("{ \"totalPrice\": 46.50 }")
+                    .send()
+                    .join();
             })
+            .name("sample-app")
+            .timeout(Duration.ofMinutes(5))
             .open();
 
-        final TopicSubscription topicSubscription = client.topics().newSubscription(TOPIC)
+        final TopicSubscription topicSubscription = client.topicClient().newSubscription()
             .name("app-monitoring")
+            .jobEventHandler(System.out::println)
+            .workflowInstanceEventHandler(System.out::println)
             .startAtHeadOfTopic()
-            .workflowInstanceEventHandler(event ->
-            {
-                System.out.println("> " + event);
-            })
             .open();
 
         waitUntilClose();
 
-        taskSubscription.close();
+        jobWorker.close();
         topicSubscription.close();
 
         client.close();
