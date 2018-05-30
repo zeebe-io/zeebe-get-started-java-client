@@ -1,9 +1,8 @@
 package io.zeebe;
 
-import java.time.Duration;
-import java.util.*;
+import java.util.Map;
+import java.util.Scanner;
 
-import io.zeebe.client.ClientProperties;
 import io.zeebe.client.ZeebeClient;
 import io.zeebe.client.api.clients.WorkflowClient;
 import io.zeebe.client.api.events.DeploymentEvent;
@@ -17,14 +16,11 @@ public class Application
     public static void main(String[] args)
     {
         final String contactPoint = args.length >= 1 ? args[0] : "127.0.0.1:51015";
-        final Properties clientProperties = new Properties();
-        // change the contact point if needed
-        clientProperties.put(ClientProperties.BROKER_CONTACTPOINT, contactPoint);
 
         System.out.println("Connecting to broker: " + contactPoint);
 
         final ZeebeClient client = ZeebeClient.newClientBuilder()
-            .withProperties(clientProperties)
+            .brokerContactPoint(contactPoint)
             .build();
 
         System.out.println("Connected to broker: " + contactPoint);
@@ -70,14 +66,12 @@ public class Application
                     .send()
                     .join();
             })
-            .name("sample-app")
-            .timeout(Duration.ofMinutes(5))
             .open();
 
         final TopicSubscription topicSubscription = client.topicClient().newSubscription()
             .name("app-monitoring")
-            .jobEventHandler(System.out::println)
-            .workflowInstanceEventHandler(System.out::println)
+            .jobEventHandler(e -> System.out.println(e.toJson()))
+            .workflowInstanceEventHandler(e -> System.out.println(e.toJson()))
             .startAtHeadOfTopic()
             .open();
 
