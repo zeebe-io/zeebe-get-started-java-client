@@ -1,7 +1,6 @@
 package io.zeebe;
 
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 import io.zeebe.client.ZeebeClient;
 import io.zeebe.client.api.clients.WorkflowClient;
@@ -35,10 +34,14 @@ public class Application
         final int version = deployment.getDeployedWorkflows().get(0).getVersion();
         System.out.println("Workflow deployed. Version: " + version);
 
+        final Map<String, Object> data = new HashMap<>();
+        data.put("orderId", 31243);
+        data.put("orderItems", Arrays.asList(435, 182, 376));
+
         final WorkflowInstanceEvent wfInstance = workflowClient.newCreateInstanceCommand()
             .bpmnProcessId("order-process")
             .latestVersion()
-            .payload("{ \"orderId\": 31243, \"orderItems\": [435, 182, 376] }")
+            .payload(data)
             .send()
             .join();
 
@@ -54,15 +57,17 @@ public class Application
                 final Map<String, Object> headers = job.getCustomHeaders();
                 final String method = (String) headers.get("method");
 
-                final String orderId = job.getPayload();
+                final Map<String, Object> payload = job.getPayloadAsMap();
 
-                System.out.println("Process order: " + orderId);
+                System.out.println("Process order: " + payload.get("orderId"));
                 System.out.println("Collect money using payment method: " + method);
 
                 // ...
 
+                payload.put("totalPrice", 46.50);
+
                 jobClient.newCompleteCommand(job)
-                    .payload("{ \"totalPrice\": 46.50 }")
+                    .payload(payload)
                     .send()
                     .join();
             })
