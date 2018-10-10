@@ -7,14 +7,13 @@ import io.zeebe.client.api.clients.WorkflowClient;
 import io.zeebe.client.api.events.DeploymentEvent;
 import io.zeebe.client.api.events.WorkflowInstanceEvent;
 import io.zeebe.client.api.subscription.JobWorker;
-import io.zeebe.client.api.subscription.TopicSubscription;
 
 public class Application
 {
 
     public static void main(String[] args)
     {
-        final String contactPoint = args.length >= 1 ? args[0] : "127.0.0.1:51015";
+        final String contactPoint = args.length >= 1 ? args[0] : "127.0.0.1:26500";
 
         System.out.println("Connecting to broker: " + contactPoint);
 
@@ -24,14 +23,14 @@ public class Application
 
         System.out.println("Connected to broker: " + contactPoint);
 
-        final WorkflowClient workflowClient = client.topicClient().workflowClient();
+        final WorkflowClient workflowClient = client.workflowClient();
 
         final DeploymentEvent deployment = workflowClient.newDeployCommand()
             .addResourceFromClasspath("order-process.bpmn")
             .send()
             .join();
 
-        final int version = deployment.getDeployedWorkflows().get(0).getVersion();
+        final int version = deployment.getWorkflows().get(0).getVersion();
         System.out.println("Workflow deployed. Version: " + version);
 
         final Map<String, Object> data = new HashMap<>();
@@ -49,7 +48,7 @@ public class Application
 
         System.out.println("Workflow instance created. Key: " + workflowInstanceKey);
 
-        final JobWorker jobWorker = client.topicClient().jobClient()
+        final JobWorker jobWorker = client.jobClient()
             .newWorker()
             .jobType("payment-service")
             .handler((jobClient, job) ->
@@ -65,25 +64,16 @@ public class Application
                 // ...
 
                 payload.put("totalPrice", 46.50);
-
-                jobClient.newCompleteCommand(job)
+                jobClient.newCompleteCommand(job.getKey())
                     .payload(payload)
                     .send()
                     .join();
             })
             .open();
 
-        final TopicSubscription topicSubscription = client.topicClient().newSubscription()
-            .name("app-monitoring")
-            .jobEventHandler(e -> System.out.println(e.toJson()))
-            .workflowInstanceEventHandler(e -> System.out.println(e.toJson()))
-            .startAtHeadOfTopic()
-            .open();
-
         waitUntilClose();
 
         jobWorker.close();
-        topicSubscription.close();
 
         client.close();
         System.out.println("Closed.");
