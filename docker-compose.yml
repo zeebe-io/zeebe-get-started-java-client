@@ -2,11 +2,11 @@ version: '2.2'
 
 services:
     broker:
-        image: camunda/zeebe:0.6.0
+        image: camunda/zeebe:0.13.0
         container_name: zeebe-broker
         restart: "on-failure"
         hostname: zeebe-broker
 
     worker:
         build: .
-        command: "zeebe-broker:51015"
+        command: "zeebe-broker:26500"
