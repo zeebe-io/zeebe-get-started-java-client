@@ -3,7 +3,6 @@ package io.zeebe;
 import java.util.*;
 
 import io.zeebe.client.ZeebeClient;
-import io.zeebe.client.api.clients.WorkflowClient;
 import io.zeebe.client.api.events.DeploymentEvent;
 import io.zeebe.client.api.events.WorkflowInstanceEvent;
 import io.zeebe.client.api.subscription.JobWorker;
@@ -23,9 +22,7 @@ public class Application
 
         System.out.println("Connected to broker: " + contactPoint);
 
-        final WorkflowClient workflowClient = client.workflowClient();
-
-        final DeploymentEvent deployment = workflowClient.newDeployCommand()
+        final DeploymentEvent deployment = client.newDeployCommand()
             .addResourceFromClasspath("order-process.bpmn")
             .send()
             .join();
@@ -37,7 +34,7 @@ public class Application
         data.put("orderId", 31243);
         data.put("orderItems", Arrays.asList(435, 182, 376));
 
-        final WorkflowInstanceEvent wfInstance = workflowClient.newCreateInstanceCommand()
+        final WorkflowInstanceEvent wfInstance = client.newCreateInstanceCommand()
             .bpmnProcessId("order-process")
             .latestVersion()
             .payload(data)
@@ -48,7 +45,7 @@ public class Application
 
         System.out.println("Workflow instance created. Key: " + workflowInstanceKey);
 
-        final JobWorker jobWorker = client.jobClient()
+        final JobWorker jobWorker = client
             .newWorker()
             .jobType("payment-service")
             .handler((jobClient, job) ->
