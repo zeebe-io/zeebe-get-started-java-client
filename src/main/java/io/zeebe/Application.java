@@ -37,7 +37,7 @@ public class Application
         final WorkflowInstanceEvent wfInstance = client.newCreateInstanceCommand()
             .bpmnProcessId("order-process")
             .latestVersion()
-            .payload(data)
+            .variables(data)
             .send()
             .join();
 
