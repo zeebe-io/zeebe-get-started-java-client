@@ -50,7 +50,7 @@ public class Application {
             .jobType("payment-service")
             .handler(
                 (jobClient, job) -> {
-                  final Map<String, Object> variables = job.getPayloadAsMap();
+                  final Map<String, Object> variables = job.getVariablesAsMap();
 
                   System.out.println("Process order: " + variables.get("orderId"));
                   System.out.println("Collect money");
@@ -60,7 +60,7 @@ public class Application {
                   final Map<String, Object> result = new HashMap<>();
                   result.put("totalPrice", 46.50);
 
-                  jobClient.newCompleteCommand(job.getKey()).payload(result).send().join();
+                  jobClient.newCompleteCommand(job.getKey()).variables(result).send().join();
                 })
             .fetchVariables("orderId")
             .open();
