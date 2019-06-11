@@ -19,3 +19,10 @@ dependency-reduced-pom.xml
 *.DS_Store
 .gradle
 work/
+
+# *.yaml.tmpl is templated by make
+skaffold.yaml
+kustomization.yaml
+
+# make manifests (kustomize generated code)
+kustomize_generated_manifest.yaml

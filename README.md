@@ -51,6 +51,63 @@ worker_1_1b0b3eca78ad | Closed.
 zeebe-get-started-java-client_worker_1_1b0b3eca78ad exited with code 0
 ```
 
+## Kubernetes
+
+Bare bones example for kubernetes is provided. Because of the wide variations in providers, we cannot provide examples for all. This should work on GKE 1.12 and be adaptable for your installation.
+
+### Prerequisites
+
+- Zeebe gateway(s) in front of zeebe broker(s) running
+- A service called `zeebe` exposing a port called `gateway` in the same namespace (set in `kustomization.yaml` and defaulting to `demo-zeebe`) pointing to said gateway(s)
+- skaffold, kustomize, docker, GNU Make and gcloud installed
+- a gcr.io image repository to push the finished image
+
+### Running
+
+```
+make skaffold
+```
+
+1. Make will populate skaffold.yaml and kustomization.yaml with your GCP project ID
+1. A maven docker image will be downloaded to build the target jar
+1. Skaffold will build the Dockerfile and push it to your gcr
+1. Skaffold will call `kustomize build`
+1. Skaffold will rewrite the image tags in the manifests to match the one it just pushed
+1. The worker will start, looking for the service `zeebe` in the same namespace.
+
+The service must be created before the demo pod starts.
+
+You do not need to set the environment variables if your service is configured correctly. They are [provided by kubernetes](https://kubernetes.io/docs/concepts/services-networking/service/#environment-variables).
+
+### Output
+
+If everything is successful, you should have something like this (zeebe-0 is a broker/gateway configured seperately)
+```
+➜ kubectl get all -n demo-zeebe
+NAME                                READY   STATUS             RESTARTS   AGE
+pod/zeebe-0                         1/1     Running            0          47m
+pod/zeebe-client-58cd7d45dc-cwx5x   0/1     CrashLoopBackOff   6          12m
+
+NAME            TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                                             AGE
+service/zeebe   ClusterIP   10.11.241.252   <none>        26500/TCP,26501/TCP,26502/TCP,26503/TCP,26504/TCP   132m
+
+NAME                           DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/zeebe-client   1         1         1            0           12m
+
+NAME                                      DESIRED   CURRENT   READY   AGE
+replicaset.apps/zeebe-client-58cd7d45dc   1         1         0       12m
+
+NAME                     DESIRED   CURRENT   AGE
+statefulset.apps/zeebe   1         1         132m
+
+➜ kubectl logs -n demo-zeebe zeebe-client-58cd7d45dc-cwx5x 
+Connecting to broker: 10.11.241.252:26500
+Connected to broker: 10.11.241.252:26500
+Workflow deployed. Version: 16
+Workflow instance created. Key: 2251799813685412
+Closed.
+```
+
 ## Code of Conduct
 
 This project adheres to the Contributor Covenant [Code of

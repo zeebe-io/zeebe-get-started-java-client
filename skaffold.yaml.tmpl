@@ -1,0 +1,14 @@
+apiVersion: skaffold/v1beta11
+kind: Config
+build:
+  artifacts:
+  - image: gcr.io/${GCLOUD_PROJECT}/zeebe-get-started-java-client
+    context: .
+  googleCloudBuild: {}
+  tagPolicy:
+    sha256: {}
+deploy:
+  kustomize:
+    path: .
+
+# TODO consider adding jib for maven builds

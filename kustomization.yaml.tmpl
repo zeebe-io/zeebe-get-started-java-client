@@ -1,0 +1,18 @@
+# This file is templated by Make
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: demo-zeebe
+
+# Labels to add to all resources and selectors.
+commonLabels:
+  app.kubernetes.io/env: demo
+
+bases:
+  - ./worker/deployment.yaml
+
+images:
+  - name: zeebe-get-started-java-client
+    newName: gcr.io/${GCLOUD_PROJECT}/zeebe-get-started-java-client
+    #skaffold will overwrite this, otherwise you should explicitly set it
+    newTag: latest

@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zeebe-client
+spec:
+  selector: {}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/app: zeebe-get-started-java-client
+    spec:
+      containers:
+        - name: zeebe-get-started-java-client
+          image: zeebe-get-started-java-client
+          command: [ "java" ]
+          args:
+            - -jar
+            - /usr/src/zeebe-worker.jar
+            - $(ZEEBE_SERVICE_HOST):$(ZEEBE_SERVICE_PORT_GATEWAY)
+          resources:
+            requests:
+              cpu: 300m
+              memory: 512Mi
+            limits:
+              memory: 512Mi
