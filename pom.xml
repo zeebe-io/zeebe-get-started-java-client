@@ -9,7 +9,7 @@
 	<packaging>jar</packaging>
 
 	<properties>
-		<version.zeebe>0.18.0</version.zeebe>
+		<version.zeebe>0.19.0-alpha2</version.zeebe>
 		<version.log4j>2.8.1</version.log4j>
 	</properties>
 

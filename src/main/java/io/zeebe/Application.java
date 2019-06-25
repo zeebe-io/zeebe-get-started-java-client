@@ -1,9 +1,9 @@
 package io.zeebe;
 
 import io.zeebe.client.ZeebeClient;
-import io.zeebe.client.api.events.DeploymentEvent;
-import io.zeebe.client.api.events.WorkflowInstanceEvent;
-import io.zeebe.client.api.subscription.JobWorker;
+import io.zeebe.client.api.response.DeploymentEvent;
+import io.zeebe.client.api.response.WorkflowInstanceEvent;
+import io.zeebe.client.api.worker.JobWorker;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
