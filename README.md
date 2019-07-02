@@ -41,14 +41,15 @@ You should see output like this:
 
 ```
 $ docker-compose up worker
-Creating zeebe-get-started-java-client_worker_1_7b7ff1087d87 ... done
-Attaching to zeebe-get-started-java-client_worker_1_1b0b3eca78ad
-worker_1_1b0b3eca78ad | Connecting to broker: zeebe-broker:26500
-worker_1_1b0b3eca78ad | Connected to broker: zeebe-broker:26500
-worker_1_1b0b3eca78ad | Workflow deployed. Version: 1
-worker_1_1b0b3eca78ad | Workflow instance created. Key: 6
-worker_1_1b0b3eca78ad | Closed.
-zeebe-get-started-java-client_worker_1_1b0b3eca78ad exited with code 0
+Starting zeebe-get-started-java-client_worker_1 ... done
+Attaching to zeebe-get-started-java-client_worker_1
+worker_1  | Connecting to broker: zeebe-broker:26500
+worker_1  | Connected to broker: zeebe-broker:26500
+worker_1  | Workflow deployed. Version: 1
+worker_1  | Workflow instance created. Key: 2251799813685261
+worker_1  | Closed.
+zeebe-get-started-java-client_worker_1 exited with code 0
+
 ```
 
 ## Code of Conduct
