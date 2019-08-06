@@ -17,7 +17,7 @@ public class Application {
     System.out.println("Connecting to broker: " + contactPoint);
 
     final ZeebeClient client =
-        ZeebeClient.newClientBuilder().brokerContactPoint(contactPoint).build();
+        ZeebeClient.newClientBuilder().brokerContactPoint(contactPoint).usePlaintext().build();
 
     System.out.println("Connected to broker: " + contactPoint);
 
