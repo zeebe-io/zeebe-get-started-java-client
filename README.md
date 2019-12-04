@@ -34,7 +34,7 @@ docker-compose up -d broker
 and start the worker
 
 ```
-docker-compose up worker
+docker-compose up --build --force-recreate worker
 ```
 
 You should see output like this:
