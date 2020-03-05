@@ -15,11 +15,27 @@ You can find the tutorial in the [Zeebe documentation](http://docs.zeebe.io/java
 
 Build the JAR file with Maven
 
-`mvn clean package`
+```
+mvn clean package
+```
+
+Then start the broker:
+
+```
+docker-compose up -d broker
+```
 
 And execute it with Java
 
-`java -jar target/zeebe-get-started-java-client-0.1.0-jar-with-dependencies.jar`
+```
+java -jar target/zeebe-get-started-java-client-0.1.0-jar-with-dependencies.jar
+```
+
+After executing, please remember to shutdown the broker:
+
+```
+docker-compose down -v
+```
 
 ## docker-compose
 
@@ -49,7 +65,12 @@ worker_1  | Workflow deployed. Version: 1
 worker_1  | Workflow instance created. Key: 2251799813685261
 worker_1  | Closed.
 zeebe-get-started-java-client_worker_1 exited with code 0
+```
 
+After executing, please remember to shutdown the broker:
+
+```
+docker-compose down -v
 ```
 
 ## Code of Conduct
