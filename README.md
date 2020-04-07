@@ -2,7 +2,7 @@
 
 This repository contains the source code of the Zeebe Get-Started Java client tutorial.
 
-You can find the tutorial in the [Zeebe documentation](http://docs.zeebe.io/java-client/get-started).
+You can find the tutorial in the [Zeebe documentation](http://docs.zeebe.io/clients/java-client/get-started).
 
 * [Web Site](https://zeebe.io)
 * [Documentation](https://docs.zeebe.io)
