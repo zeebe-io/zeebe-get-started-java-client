@@ -9,17 +9,45 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
+/**
+ * Sample application that connects to a cluster on Camunda Cloud, or a locally deployed cluster.
+ *
+ * <p>When connecting to a cluster in Camunda Cloud, this application assumes that the following
+ * environment variables are set:
+ *
+ * <ul>
+ *   <li>ZEEBE_ADDRESS
+ *   <li>ZEEBE_CLIENT_ID
+ *   <li>ZEEBE_CLIENT_SECRET
+ *   <li>ZEEBE_AUTHORIZATION_SERVER_URL
+ * </ul>
+ *
+ * <p><strong>Hint:</strong> When you create client credentials in Camunda Cloud you have the option
+ * to download a file with above lines filled out for you.
+ *
+ * <p>When connecting to a local cluster, you can specifiy that address either at the command line
+ * or by setting {@code ZEEBE_ADDRESS}. This application also assumes that auhentication is disabled
+ * for a locally deployed cluster
+ */
 public class Application {
 
   public static void main(String[] args) {
-    final String contactPoint = args.length >= 1 ? args[0] : "127.0.0.1:26500";
+    final String defaultAddress = "127.0.0.1:26500";
+    final String addressFromCommandLine = args.length >= 1 ? args[0] : null;
+    final String addressFromEnvironmentVariable = System.getenv("ZEEBE_ADDRESS");
 
-    System.out.println("Connecting to broker: " + contactPoint);
+    final String gatewayAddress =
+        addressFromCommandLine != null
+            ? addressFromCommandLine
+            : addressFromEnvironmentVariable != null
+                ? addressFromEnvironmentVariable
+                : defaultAddress;
 
-    final ZeebeClient client =
-        ZeebeClient.newClientBuilder().brokerContactPoint(contactPoint).usePlaintext().build();
+    System.out.println("Connecting to gateway: " + gatewayAddress);
 
-    System.out.println("Connected to broker: " + contactPoint);
+    final ZeebeClient client = createZeebeClient(gatewayAddress);
+
+    System.out.println("Connected to gateway: " + gatewayAddress);
 
     final DeploymentEvent deployment =
         client.newDeployCommand().addResourceFromClasspath("order-process.bpmn").send().join();
@@ -71,6 +99,18 @@ public class Application {
 
     client.close();
     System.out.println("Closed.");
+  }
+
+  private static ZeebeClient createZeebeClient(String gatewayAddress) {
+    if (gatewayAddress.contains("zeebe.camunda.io")) {
+      /* Connect to Camunda Cloud Cluster, assumes that credentials are set in environment variables.
+       * See JavaDoc on class level for details
+       */
+      return ZeebeClient.newClientBuilder().gatewayAddress(gatewayAddress).build();
+    } else {
+      // connect to local deployment; assumes that authentication is disabled
+      return ZeebeClient.newClientBuilder().gatewayAddress(gatewayAddress).usePlaintext().build();
+    }
   }
 
   private static void waitUntilClose() {

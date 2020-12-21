@@ -2,16 +2,48 @@
 
 This repository contains the source code of the Zeebe Get-Started Java client tutorial.
 
-You can find the tutorial in the [Zeebe documentation](http://docs.zeebe.io/clients/java-client/get-started).
+You can find the tutorial in the [Zeebe documentation](https://docs.camunda.io/docs/product-manuals/clients/java-client/get-started).
 
 * [Web Site](https://zeebe.io)
-* [Documentation](https://docs.zeebe.io)
+* [Documentation](https://docs.camunda.io)
 * [Issue Tracker](https://github.com/zeebe-io/zeebe/issues)
 * [Slack Channel](https://zeebe-slackin.herokuapp.com/)
 * [User Forum](https://forum.zeebe.io)
 * [Contribution Guidelines](/CONTRIBUTING.md)
 
-## Run with Maven
+The code exists in two version:
+* `ApplicationCamundaCloud`- Client connecting to cluster in Camunda Cloud
+* `ApplicationDocker` - Client connecting to a cluster running in a Docker container
+
+## Camunda Cloud Deployment
+
+Build the JAR file with Maven
+
+```
+mvn clean package
+```
+
+Export the connection settings as environment variables:
+
+```
+export ZEEBE_ADDRESS='[Zeebe API]'
+export ZEEBE_CLIENT_ID='[Client ID]'
+export ZEEBE_CLIENT_SECRET='[Client Secret]'
+export ZEEBE_AUTHORIZATION_SERVER_URL='[OAuth API]'
+```
+
+**Hint:** When you create client credentials in Camunda Cloud you have the option to download a file with above lines filled out for you.
+
+And execute it with Java
+
+```
+java -jar target/zeebe-get-started-java-client-0.1.0-jar-with-dependencies.jar
+```
+
+
+## Docker Deployment
+
+### Run with Maven
 
 Build the JAR file with Maven
 
