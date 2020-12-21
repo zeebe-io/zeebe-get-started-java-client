@@ -11,10 +11,6 @@ You can find the tutorial in the [Zeebe documentation](https://docs.camunda.io/d
 * [User Forum](https://forum.zeebe.io)
 * [Contribution Guidelines](/CONTRIBUTING.md)
 
-The code exists in two version:
-* `ApplicationCamundaCloud`- Client connecting to cluster in Camunda Cloud
-* `ApplicationDocker` - Client connecting to a cluster running in a Docker container
-
 ## Camunda Cloud Deployment
 
 Build the JAR file with Maven
