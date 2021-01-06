@@ -17,9 +17,9 @@ import java.util.Scanner;
  *
  * <ul>
  *   <li>ZEEBE_ADDRESS
- *   <li>ZEEBE_CLIENT_ID
- *   <li>ZEEBE_CLIENT_SECRET
- *   <li>ZEEBE_AUTHORIZATION_SERVER_URL
+ *   <li>ZEEBE_CLIENT_ID (implicitly required by {@code ZeebeClient} if authorization is enabled)
+ *   <li>ZEEBE_CLIENT_SECRET (implicitly required by {@code ZeebeClient} if authorization is enabled)
+ *   <li>ZEEBE_AUTHORIZATION_SERVER_URL (implicitly required by {@code ZeebeClient} if authorization is enabled)
  * </ul>
  *
  * <p><strong>Hint:</strong> When you create client credentials in Camunda Cloud you have the option
