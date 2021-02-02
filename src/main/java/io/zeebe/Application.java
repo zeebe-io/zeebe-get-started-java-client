@@ -81,12 +81,13 @@ public class Application {
                   final Map<String, Object> variables = job.getVariablesAsMap();
 
                   System.out.println("Process order: " + variables.get("orderId"));
-                  System.out.println("Collect money");
+                  double price = 46.50;
+                  System.out.println("Collect money: $" + price);
 
                   // ...
 
                   final Map<String, Object> result = new HashMap<>();
-                  result.put("totalPrice", 46.50);
+                  result.put("totalPrice", price);
 
                   jobClient.newCompleteCommand(job.getKey()).variables(result).send().join();
                 })
