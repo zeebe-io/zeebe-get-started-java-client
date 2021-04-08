@@ -2,7 +2,7 @@ package io.zeebe;
 
 import io.zeebe.client.ZeebeClient;
 import io.zeebe.client.api.response.DeploymentEvent;
-import io.zeebe.client.api.response.WorkflowInstanceEvent;
+import io.zeebe.client.api.response.ProcessInstanceEvent;
 import io.zeebe.client.api.worker.JobWorker;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -52,14 +52,14 @@ public class Application {
     final DeploymentEvent deployment =
         client.newDeployCommand().addResourceFromClasspath("order-process.bpmn").send().join();
 
-    final int version = deployment.getWorkflows().get(0).getVersion();
-    System.out.println("Workflow deployed. Version: " + version);
+    final int version = deployment.getProcesses().get(0).getVersion();
+    System.out.println("Process deployed. Version: " + version);
 
     final Map<String, Object> data = new HashMap<>();
     data.put("orderId", 31243);
     data.put("orderItems", Arrays.asList(435, 182, 376));
 
-    final WorkflowInstanceEvent wfInstance =
+    final ProcessInstanceEvent wfInstance =
         client
             .newCreateInstanceCommand()
             .bpmnProcessId("order-process")
@@ -68,9 +68,9 @@ public class Application {
             .send()
             .join();
 
-    final long workflowInstanceKey = wfInstance.getWorkflowInstanceKey();
+    final long workflowInstanceKey = wfInstance.getProcessInstanceKey();
 
-    System.out.println("Workflow instance created. Key: " + workflowInstanceKey);
+    System.out.println("Process instance created. Key: " + workflowInstanceKey);
 
     final JobWorker jobWorker =
         client
