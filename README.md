@@ -1,3 +1,5 @@
+⚠️ 📣 This repository is no longer maintained, please visit https://github.com/camunda-cloud/camunda-cloud-get-started
+---
 # Zeebe - Get Started Java Client
 
 This repository contains the source code of the Zeebe Get-Started Java client tutorial.
